@@ -3,10 +3,15 @@
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
+//nyilvanos vegpontok
 Route::get('/hello', function (Request $request) {
     return response()->json(['message'=>'Hello API']);
 });
+Route::post('/register',[AuthController::class, 'register']);
+Route::post('/login',[AuthController::class, 'login']);
+//Authentikalt vegpontok
+Route::middleware('auth:sanctum')-> post('/logout',[AuthController::class, 'logout']);
 
 Route::get('/reservations',[ReservationController::class, 'index']); // összes foglalás
 Route::get('/reservations/{id}',[ReservationController::class, 'show']); // egy foglalás
