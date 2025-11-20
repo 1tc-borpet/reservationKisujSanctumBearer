@@ -8,8 +8,14 @@ use App\Models\Reservation;
 
 class ReservationController extends Controller
 {
-    public function index(){
-        $reservations = Reservation::all();
+    public function index(Request $request){
+        $user = $request->user();
+        if (!$user->is_admin) {
+                $reservations = Reservation::all();
+        }else{
+            $reservations = Reservation::where('user_id', $user->id)->get();
+        }
+
         return response()->json($reservations, 200);
     }
 
