@@ -11,11 +11,16 @@ Route::get('/hello', function (Request $request) {
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
 //Authentikalt vegpontok
-Route::middleware('auth:sanctum')-> post('/logout',[AuthController::class, 'logout']);
-
-Route::get('auth:sanctum',[ReservationController::class, 'index']); // összes foglalás
-Route::get('auth:sanctum',[ReservationController::class, 'show']); // egy foglalás
-Route::post('auth:sanctum',[ReservationController::class, 'store']); // egy foglalás rögzítése
-Route::put('auth:sanctum',[ReservationController::class, 'update']); // egy foglalás minden mezőjét módosítom
-Route::patch('auth:sanctum',[ReservationController::class, 'update']); // egy foglalás néhány mezőjét módosítom
-Route::delete('auth:sanctum',[ReservationController::class, 'destroy']); // egy foglalás törlése
+//Route::middleware('auth:sanctum')-> post('/logout',[AuthController::class, 'logout']);
+/*
+Route::middleware('auth:sanctum')->get('/reservations',[ReservationController::class, 'index']); // összes foglalás
+Route::middleware('auth:sanctum')->get('/reservations/{id}',[ReservationController::class, 'show']); // egy foglalás
+Route::middleware('auth:sanctum')->post('/reservations',[ReservationController::class, 'store']); // egy foglalás rögzítése
+Route::middleware('auth:sanctum')->put('/reservations/{id}',[ReservationController::class, 'update']); // egy foglalás minden mezőjét módosítom
+Route::middleware('auth:sanctum')->patch('/reservations/{id}',[ReservationController::class, 'update']); // egy foglalás néhány mezőjét módosítom
+Route::middleware('auth:sanctum')->delete('/reservations/{id}',[ReservationController::class, 'destroy']); // egy foglalás törlése
+*/
+Route::middleware('auth:sanctum')->group(function(){
+    Route::post('/logout',[AuthController::class, 'logout']);
+    Route::apiResource('reservations', ReservationController::class);
+});

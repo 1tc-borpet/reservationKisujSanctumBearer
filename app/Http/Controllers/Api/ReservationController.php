@@ -10,7 +10,7 @@ class ReservationController extends Controller
 {
     public function index(Request $request){
         $user = $request->user();
-        if (!$user->is_admin) {
+        if ($user->is_admin) {
                 $reservations = Reservation::all();
         }else{
             $reservations = Reservation::where('user_id', $user->id)->get();
@@ -19,32 +19,35 @@ class ReservationController extends Controller
         return response()->json($reservations, 200);
     }
 
-    public function show($id){
+    public function show(requesr $request, $id){
+        $user = $request->user();
         $reservation = Reservation::findOrFail($id);
-        if ($reservation){
-            return response()->json($reservation, 200);
+        if (!$user->is_admin && $reservation->user_id != $user->id){
+             return response()->json(['message'=>'Unauthorized'], 403);
         }
-        return response()->json(['message' => 'Hiba! A foglalás nem található!'], 404);
+        return response()->json($reservation, 200);
     }
 
     public function store(Request $request){
         $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
             'reservation_time' => 'required|date',
             'guests' => 'required|integer|min:1',
             'note' => 'nullable|string',
         ]);
-        $reservation = Reservation::create($validated);
+        $reservation = Reservation::create([
+            'user_id' => $request->user()->id,
+            'reservation_time' => $validated['reservation_time'],
+            'guests' => $validated['guests'],
+            'note' => $validated['note'] ?? null,
+        ]);
         return response()->json($reservation, 201);
     }
 
     public function update(Request $request, $id){
+        $user = $request->user();
         $reservation = Reservation::findOrFail($id);
         
         $validated = $request->validate([
-            'name' => 'sometimes|required|string',
-            'email' => 'sometimes|required|email',
             'reservation_time' => 'sometimes|required|date',
             'guests' => 'sometimes|required|integer|min:1',
             'note' => 'nullable|string',
@@ -55,14 +58,14 @@ class ReservationController extends Controller
     }
 
     public function destroy($id){
+        $user = request()->user();
         $reservation = Reservation::findOrFail($id);
 
-        if ($reservation){
-            $reservation->delete();
-            return response()->json(['message'=>'Foglalás törölve.'],200);
+        if ($user->is_admin && $reservation->user_id == $user->id){
+            return response()->json(['message'=>'Foglalás törölve.'],403);
         }
-        
-        return response()->json(['message'=>'Hiba! A foglalás nem található!'], 404);
+        $reservation->delete();
+        return response()->json(['message'=>'Sikeresen torolve'], 200);
 
     }
 
