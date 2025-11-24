@@ -46,7 +46,7 @@ class AuthControllerTest extends TestCase
         ]);
         $credentials = [
             'email'=>'teszt@example.com',
-            'password'=>bcrypt('password'),
+            'password'=>('password'),
         ];
         //Act
         $response = $this->postJson('/api/login', $credentials);
@@ -55,6 +55,15 @@ class AuthControllerTest extends TestCase
     }
     #[Test]
     public function user_can_logout(){
+        //Arrange
+        $user = User::factory()->create();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
+        //Act
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '.$token,
+        ])->postJson('/api/logout');
+        //Assert
+        $response->assertStatus(200)->assertJson(['message'=>'Sikeres kijelentkezes']);
     }
 }

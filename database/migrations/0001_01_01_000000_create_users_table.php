@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+            // Ezek hiányoztak – a teszt és a factory is használja őket
+            $table->string('name');
+            $table->string('email')->unique();
+
             $table->boolean('is_admin')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
